@@ -26,18 +26,39 @@ int main()
     Mat gray;
     cvtColor(image,gray,COLOR_BGR2GRAY);
 
+//    // 膨胀处理
+//    Mat dilated;
+//    Mat element = getStructuringElement(MORPH_ELLIPSE,Size(2,2),Point(-1,-1));
+//
+//    dilate(gray,dilated,element);
+//    namedWindow("Dilated",WINDOW_AUTOSIZE);
+//    imshow("Dilated",dilated);
     
-    // 取轮廓及描绘轮廓
+    // 取轮廓
     Mat bin_image;
     threshold(gray,bin_image,128,255,THRESH_OTSU);
     std::vector<std::vector<Point>> contours;
     std::vector<Vec4i>hierarchy;
     findContours(bin_image,contours,hierarchy,CV_RETR_LIST,CV_CHAIN_APPROX_NONE);
+    std::vector<Rect> boundRect(contours.size());
+    
+    for (int i=0; i < contours.size(); i++)
+    {
+        boundRect[i] = boundingRect(Mat(contours[i]));
+    }
+    
+    // 描绘轮廓
     Mat result;
     image.copyTo(result);
     namedWindow("Unmarked result",WINDOW_AUTOSIZE);
     imshow("Result unmarked",result);
     drawContours(result,contours,-1, Scalar(0,255,0));
+    for (int i=0; i<contours.size();i++){
+        rectangle(result,boundRect[i].tl(),boundRect[i].br(), Scalar(0,255,0), 1, 8, 0);
+    }
+    
+    // 矩形
+    
 
     // 写出结果
     namedWindow("Contours", WINDOW_AUTOSIZE);
